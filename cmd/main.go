@@ -1,21 +1,21 @@
-//package main
-//
-//import "fmt"
-//
-//func main() {
-//	fmt.Println("hello halyk")
-//}
-
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"Library_WebAPI/internal/app"
+	"Library_WebAPI/pkg/config"
+	"log"
+)
 
 func main() {
-	app := fiber.New()
+	conf, err := config.LoadConfig()
+	if err != nil {
+		log.Println("Cannot load configs", err)
+		return
+	}
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
-
-	app.Listen(":8000")
+	err = app.Start(conf)
+	if err != nil {
+		log.Println("Cannot Start server")
+		return
+	}
 }
