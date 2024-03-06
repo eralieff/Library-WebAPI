@@ -92,3 +92,30 @@ func (s *Server) UpdateAuthor(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON("The author has been successfully updated")
 }
+
+func (s *Server) DeleteAuthor(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Delete Author")
+
+	if c.Method() != fiber.MethodDelete {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	authorID := c.Params("id")
+
+	id, err := strconv.Atoi(authorID)
+	if err != nil {
+		s.Logger.Error("Error parsing from string to int author ID: ", err)
+		return err
+	}
+
+	err = s.Store.DeleteAuthor(id)
+	if err != nil {
+		//if err != ErrResourceNotFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
+		//}
+		s.Logger.Error("Error deleting author: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON("The author has been successfully deleted")
+}

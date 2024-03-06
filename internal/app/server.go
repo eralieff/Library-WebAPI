@@ -25,6 +25,7 @@ type Store interface {
 	GetAuthors() ([]model.Author, error)
 	CreateAuthor(author *model.Author) error
 	UpdateAuthor(authorID int, updatedAuthor *model.Author) error
+	DeleteAuthor(authorID int) error
 }
 
 type Server struct {

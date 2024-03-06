@@ -84,3 +84,23 @@ func (s *Store) UpdateAuthor(authorID int, updatedAuthor *model.Author) error {
 
 	return nil
 }
+
+func (s *Store) DeleteAuthor(authorID int) error {
+	result, err := s.db.Exec("DELETE FROM Author WHERE id = $1", authorID)
+	if err != nil {
+		s.logger.Error("Error deleting author: ", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		s.logger.Error("Error getting rows affected: ", err)
+		return err
+	}
+	if rowsAffected == 0 {
+		s.logger.Error("Author with ID not found: ", authorID)
+		return fmt.Errorf("author with ID %d not found", authorID)
+	}
+
+	return nil
+}
