@@ -53,3 +53,13 @@ func (s *Store) GetAuthors() ([]model.Author, error) {
 
 	return authors, nil
 }
+
+func (s *Store) CreateAuthor(author *model.Author) error {
+	_, err := s.db.Exec("INSERT INTO Author (full_name, nickname, speciality) VALUES ($1, $2, $3)", author.FullName, author.Nickname, author.Speciality)
+	if err != nil {
+		s.logger.Error("Error creating author", err)
+		return err
+	}
+
+	return nil
+}

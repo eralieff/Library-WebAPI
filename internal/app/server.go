@@ -21,8 +21,9 @@ type Service interface {
 }
 
 type Store interface {
-	GetAuthors() ([]model.Author, error)
 	DatabaseCheckConnection() error
+	GetAuthors() ([]model.Author, error)
+	CreateAuthor(author *model.Author) error
 }
 
 type Server struct {
