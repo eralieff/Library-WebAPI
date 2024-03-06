@@ -28,6 +28,10 @@ func (s *Server) GetAuthors(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 	}
 
+	if len(authorsList) == 0 {
+		return c.Status(fiber.StatusOK).JSON("Empty table Author")
+	}
+
 	return c.Status(fiber.StatusOK).JSON(authorsList)
 }
 
