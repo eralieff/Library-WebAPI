@@ -1,12 +1,17 @@
 package app
 
 import (
+	"Library_WebAPI/internal/model"
+	"Library_WebAPI/internal/service"
+	"Library_WebAPI/internal/store"
 	"Library_WebAPI/pkg/config"
+	"Library_WebAPI/pkg/database"
 	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/hashicorp/go-hclog"
+	_ "github.com/lib/pq"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,9 +20,15 @@ import (
 type Service interface {
 }
 
+type Store interface {
+	GetAuthors() ([]model.Author, error)
+	DatabaseCheckConnection() error
+}
+
 type Server struct {
 	App     *fiber.App
 	Service Service
+	Store   Store
 	Logger  hclog.Logger
 }
 
@@ -48,14 +59,6 @@ func Start(conf *config.Config) error {
 		MaxAge:           120,
 	}))
 
-	var err error
-
-	prometheus := fiberprometheus.New("")
-	prometheus.RegisterAt(s.App, "/metrics")
-	s.App.Use(prometheus.Middleware)
-
-	s.App.Use(selectiveLogging)
-
 	logger := hclog.New(&hclog.LoggerOptions{
 		JSONFormat: true,
 		Level:      hclog.Debug,
@@ -63,7 +66,24 @@ func Start(conf *config.Config) error {
 
 	s.Logger = logger.Named("Server")
 
-	// разбирать
+	var err error
+
+	db, err := database.ConnectDB(conf.Db, s.Logger.Named("DB Connection"))
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	s.Service = service.NewService(db, logger)
+	s.Store = store.NewStore(db, logger)
+
+	prometheus := fiberprometheus.New("library-web-api")
+	prometheus.RegisterAt(s.App, "/metrics")
+	s.App.Use(prometheus.Middleware)
+
+	s.NewRouter()
+
+	s.App.Use(selectiveLogging)
+
 	go func() {
 		if err = s.App.Listen(":" + conf.Port); err != nil {
 			s.Logger.Error("Failed listen", "error", err)
