@@ -22,10 +22,13 @@ type Service interface {
 
 type Store interface {
 	DatabaseCheckConnection() error
+
 	GetAuthors() ([]model.Author, error)
 	CreateAuthor(author *model.Author) error
 	UpdateAuthor(authorID int, updatedAuthor *model.Author) error
 	DeleteAuthor(authorID int) error
+
+	ReadBooks() ([]model.Book, error)
 }
 
 type Server struct {

@@ -7,4 +7,6 @@ func (s *Server) NewRouter() {
 	s.App.Post("/authors", s.CreateAuthor)
 	s.App.Patch("/authors/:id", s.UpdateAuthor)
 	s.App.Delete("/authors/:id", s.DeleteAuthor)
+
+	s.App.Get("/books", s.ReadBooks)
 }

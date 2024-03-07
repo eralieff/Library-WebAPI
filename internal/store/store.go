@@ -104,3 +104,29 @@ func (s *Store) DeleteAuthor(authorID int) error {
 
 	return nil
 }
+
+func (s *Store) ReadBooks() ([]model.Book, error) {
+	rows, err := s.db.Query(`SELECT * FROM Book`)
+	if err != nil {
+		s.logger.Error("Error getting books", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var books []model.Book
+	for rows.Next() {
+		var book model.Book
+		if err := rows.Scan(&book.Id, &book.Title, &book.Genre, &book.ISBN); err != nil {
+			s.logger.Error("Error scanning book row", err)
+			return nil, err
+		}
+		books = append(books, book)
+	}
+
+	if err := rows.Err(); err != nil {
+		s.logger.Error("Error iterating book rows", err)
+		return nil, err
+	}
+
+	return books, nil
+}
