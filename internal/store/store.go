@@ -140,3 +140,23 @@ func (s *Store) CreateBook(book *model.Book) error {
 
 	return nil
 }
+
+func (s *Store) UpdateBook(bookID int, updatedBook *model.Book) error {
+	result, err := s.db.Exec("UPDATE Book SET title = $1, genre = $2, isbn = $3 WHERE id = $4", updatedBook.Title, updatedBook.Genre, updatedBook.ISBN, bookID)
+	if err != nil {
+		s.logger.Error("Error updating book: ", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		s.logger.Error("Error getting rows affected: ", err)
+		return err
+	}
+	if rowsAffected == 0 {
+		s.logger.Error("Book with ID not found: ", bookID)
+		return fmt.Errorf("book with ID %d not found", bookID)
+	}
+
+	return nil
+}

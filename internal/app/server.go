@@ -30,6 +30,7 @@ type Store interface {
 
 	ReadBooks() ([]model.Book, error)
 	CreateBook(book *model.Book) error
+	UpdateBook(bookID int, updatedBook *model.Book) error
 }
 
 type Server struct {
