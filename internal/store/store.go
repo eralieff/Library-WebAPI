@@ -130,3 +130,13 @@ func (s *Store) ReadBooks() ([]model.Book, error) {
 
 	return books, nil
 }
+
+func (s *Store) CreateBook(book *model.Book) error {
+	_, err := s.db.Exec("INSERT INTO Book (title, genre, isbn) VALUES ($1, $2, $3)", book.Title, book.Genre, book.Genre)
+	if err != nil {
+		s.logger.Error("Error creating book", err)
+		return err
+	}
+
+	return nil
+}

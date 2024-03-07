@@ -9,4 +9,5 @@ func (s *Server) NewRouter() {
 	s.App.Delete("/authors/:id", s.DeleteAuthor)
 
 	s.App.Get("/books", s.ReadBooks)
+	s.App.Post("/books", s.CreateBook)
 }

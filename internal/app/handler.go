@@ -142,3 +142,27 @@ func (s *Server) ReadBooks(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(booksList)
 }
+
+func (s *Server) CreateBook(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Create Book")
+
+	if c.Method() != fiber.MethodPost {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	book := new(model.Book)
+	if err := c.BodyParser(&book); err != nil {
+		s.Logger.Error("Error parsing request body: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+	}
+
+	if err := s.Store.CreateBook(book); err != nil {
+		//if err != ErrResourceNotFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
+		//}
+		s.Logger.Error("Error creating book: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusCreated).JSON("The book has been successfully created")
+}
