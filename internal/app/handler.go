@@ -199,3 +199,30 @@ func (s *Server) UpdateBook(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON("The book has been successfully updated")
 }
+
+func (s *Server) DeleteBook(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Delete Book")
+
+	if c.Method() != fiber.MethodDelete {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	bookID := c.Params("id")
+
+	id, err := strconv.Atoi(bookID)
+	if err != nil {
+		s.Logger.Error("Error parsing from string to int book ID: ", err)
+		return err
+	}
+
+	err = s.Store.DeleteBook(id)
+	if err != nil {
+		//if err != ErrResourceNotFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
+		//}
+		s.Logger.Error("Error deleting book: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON("The book has been successfully deleted")
+}
