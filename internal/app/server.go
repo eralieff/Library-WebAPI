@@ -33,6 +33,8 @@ type Store interface {
 	UpdateBook(bookID int, updatedBook *model.Book) error
 	DeleteBook(bookID int) error
 
+	ReadReaders() ([]model.Reader, error)
+
 	GetAuthorBooks(authorId int) ([]model.Book, error)
 }
 

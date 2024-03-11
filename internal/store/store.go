@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jmoiron/sqlx"
+	"strconv"
+	"strings"
 )
 
 type Store struct {
@@ -179,6 +181,45 @@ func (s *Store) DeleteBook(bookID int) error {
 	}
 
 	return nil
+}
+
+func (s *Store) ReadReaders() ([]model.Reader, error) {
+	rows, err := s.db.Query(`SELECT * FROM Reader`)
+	if err != nil {
+		s.logger.Error("Error getting readers", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var readers []model.Reader
+	for rows.Next() {
+		var reader model.Reader
+		var bookIDsStr string
+		if err := rows.Scan(&reader.Id, &reader.FullName, &bookIDsStr); err != nil {
+			s.logger.Error("Error scanning readers row", err)
+			return nil, err
+		}
+
+		bookIDsStr = strings.Trim(bookIDsStr, "{}")
+		bookIDs := strings.Split(bookIDsStr, ",")
+		for _, idStr := range bookIDs {
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				s.logger.Error("Error parsing from string to int book ID: ", err)
+				return nil, err
+			}
+			reader.ListOfBooks = append(reader.ListOfBooks, id)
+		}
+
+		readers = append(readers, reader)
+	}
+
+	if err := rows.Err(); err != nil {
+		s.logger.Error("Error iterating readers rows", err)
+		return nil, err
+	}
+
+	return readers, nil
 }
 
 func (s *Store) GetAuthorBooks(authorId int) ([]model.Book, error) {

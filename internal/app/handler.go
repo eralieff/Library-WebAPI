@@ -227,6 +227,29 @@ func (s *Server) DeleteBook(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON("The book has been successfully deleted")
 }
 
+func (s *Server) ReadReaders(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Read Readers")
+
+	if c.Method() != fiber.MethodGet {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	readersList, err := s.Store.ReadReaders()
+	if err != nil {
+		//if err == ErrNoReadersFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("No readers found")
+		//}
+		s.Logger.Error("Error retrieving readers:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	if len(readersList) == 0 {
+		return c.Status(fiber.StatusOK).JSON("Empty table Readers")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(readersList)
+}
+
 func (s *Server) GetAuthorBooks(c *fiber.Ctx) error {
 	s.Logger.With("operation", "Get Author Books")
 
