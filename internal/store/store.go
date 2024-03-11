@@ -256,6 +256,26 @@ func (s *Store) UpdateReader(readerID int, updatedReader *model.Reader) error {
 	return nil
 }
 
+func (s *Store) DeleteReader(readerID int) error {
+	result, err := s.db.Exec("DELETE FROM Reader WHERE id = $1", readerID)
+	if err != nil {
+		s.logger.Error("Error deleting reader: ", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		s.logger.Error("Error getting rows affected: ", err)
+		return err
+	}
+	if rowsAffected == 0 {
+		s.logger.Error("Reader with ID not found: ", readerID)
+		return fmt.Errorf("Reader with ID %d not found", readerID)
+	}
+
+	return nil
+}
+
 func (s *Store) GetAuthorBooks(authorId int) ([]model.Book, error) {
 	rows, err := s.db.Query(`SELECT * FROM Book WHERE author_id = $1`, authorId)
 	if err != nil {

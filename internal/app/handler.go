@@ -307,6 +307,33 @@ func (s *Server) UpdateReader(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON("The reader has been successfully updated")
 }
 
+func (s *Server) DeleteReader(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Delete Reader")
+
+	if c.Method() != fiber.MethodDelete {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	readerID := c.Params("id")
+
+	id, err := strconv.Atoi(readerID)
+	if err != nil {
+		s.Logger.Error("Error parsing from string to int reader ID: ", err)
+		return err
+	}
+
+	err = s.Store.DeleteReader(id)
+	if err != nil {
+		//if err != ErrResourceNotFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
+		//}
+		s.Logger.Error("Error deleting reader: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON("The reader has been successfully deleted")
+}
+
 func (s *Server) GetAuthorBooks(c *fiber.Ctx) error {
 	s.Logger.With("operation", "Get Author Books")
 
