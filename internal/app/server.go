@@ -34,6 +34,7 @@ type Store interface {
 	DeleteBook(bookID int) error
 
 	ReadReaders() ([]model.Reader, error)
+	CreateReader(reader *model.Reader) error
 
 	GetAuthorBooks(authorId int) ([]model.Book, error)
 }

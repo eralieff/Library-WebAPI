@@ -222,6 +222,18 @@ func (s *Store) ReadReaders() ([]model.Reader, error) {
 	return readers, nil
 }
 
+func (s *Store) CreateReader(reader *model.Reader) error {
+	bookStr := fmt.Sprintf("{%s}", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(reader.ListOfBooks)), ","), "[]"))
+
+	_, err := s.db.Exec("INSERT INTO Reader (full_name, list_of_books) VALUES ($1, $2)", reader.FullName, bookStr)
+	if err != nil {
+		s.logger.Error("Error creating reader", err)
+		return err
+	}
+
+	return nil
+}
+
 func (s *Store) GetAuthorBooks(authorId int) ([]model.Book, error) {
 	rows, err := s.db.Query(`SELECT * FROM Book WHERE author_id = $1`, authorId)
 	if err != nil {
