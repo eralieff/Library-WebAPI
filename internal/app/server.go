@@ -39,6 +39,7 @@ type Store interface {
 	DeleteReader(readerID int) error
 
 	GetAuthorBooks(authorId int) ([]model.Book, error)
+	GetReaderBooks(readerId int) ([]model.ReaderBook, error)
 }
 
 type Server struct {

@@ -364,3 +364,34 @@ func (s *Server) GetAuthorBooks(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(booksList)
 }
+
+func (s *Server) GetReaderBooks(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Get Reader Books")
+
+	if c.Method() != fiber.MethodGet {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	readerID := c.Params("id")
+
+	id, err := strconv.Atoi(readerID)
+	if err != nil {
+		s.Logger.Error("Error parsing from string to int reader ID: ", err)
+		return err
+	}
+
+	booksList, err := s.Store.GetReaderBooks(id)
+	if err != nil {
+		//if err == ErrNoBooksFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("No books found")
+		//}
+		s.Logger.Error("Error retrieving books:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	if len(booksList) == 0 {
+		return c.Status(fiber.StatusOK).JSON("Empty table Books")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(booksList)
+}

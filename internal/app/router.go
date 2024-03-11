@@ -19,4 +19,5 @@ func (s *Server) NewRouter() {
 	s.App.Delete("/readers/:id", s.DeleteReader)
 
 	s.App.Get("/authors/:id/books", s.GetAuthorBooks)
+	s.App.Get("/readers/:id/books", s.GetReaderBooks)
 }
