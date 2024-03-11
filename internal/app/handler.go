@@ -274,6 +274,39 @@ func (s *Server) CreateReader(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON("The reader has been successfully created")
 }
 
+func (s *Server) UpdateReader(c *fiber.Ctx) error {
+	s.Logger.With("operation", "Update Reader")
+
+	if c.Method() != fiber.MethodPatch {
+		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
+	}
+
+	readerID := c.Params("id")
+
+	reader := new(model.Reader)
+	if err := c.BodyParser(&reader); err != nil {
+		s.Logger.Error("Error parsing request body: ", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+	}
+
+	id, err := strconv.Atoi(readerID)
+	if err != nil {
+		s.Logger.Error("Error parsing from string to int reader ID: ", err)
+		return err
+	}
+
+	err = s.Store.UpdateReader(id, reader)
+	if err != nil {
+		//if err != ErrResourceNotFound {
+		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
+		//}
+		s.Logger.Error("Error updating reader: ", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+	}
+
+	return c.Status(fiber.StatusOK).JSON("The reader has been successfully updated")
+}
+
 func (s *Server) GetAuthorBooks(c *fiber.Ctx) error {
 	s.Logger.With("operation", "Get Author Books")
 

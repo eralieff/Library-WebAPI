@@ -234,6 +234,28 @@ func (s *Store) CreateReader(reader *model.Reader) error {
 	return nil
 }
 
+func (s *Store) UpdateReader(readerID int, updatedReader *model.Reader) error {
+	bookStr := fmt.Sprintf("{%s}", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(updatedReader.ListOfBooks)), ","), "[]"))
+
+	result, err := s.db.Exec("UPDATE Reader SET full_name = $1, list_of_books = $2 WHERE id = $3", updatedReader.FullName, bookStr, readerID)
+	if err != nil {
+		s.logger.Error("Error updating reader: ", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		s.logger.Error("Error getting rows affected: ", err)
+		return err
+	}
+	if rowsAffected == 0 {
+		s.logger.Error("Reader with ID not found: ", readerID)
+		return fmt.Errorf("Reader with ID %d not found", readerID)
+	}
+
+	return nil
+}
+
 func (s *Store) GetAuthorBooks(authorId int) ([]model.Book, error) {
 	rows, err := s.db.Query(`SELECT * FROM Book WHERE author_id = $1`, authorId)
 	if err != nil {
