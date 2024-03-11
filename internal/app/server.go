@@ -1,9 +1,7 @@
 package app
 
 import (
-	"Library_WebAPI/internal/model"
-	"Library_WebAPI/internal/service"
-	"Library_WebAPI/internal/store"
+	"Library_WebAPI/internal/handler"
 	"Library_WebAPI/pkg/config"
 	"Library_WebAPI/pkg/database"
 	"github.com/ansrivas/fiberprometheus/v2"
@@ -17,36 +15,32 @@ import (
 	"syscall"
 )
 
-type Service interface {
-}
+type Handler interface {
+	HealthCheck(c *fiber.Ctx) error
 
-type Store interface {
-	DatabaseCheckConnection() error
+	CreateAuthor(c *fiber.Ctx) error
+	ReadAuthors(c *fiber.Ctx) error
+	UpdateAuthor(c *fiber.Ctx) error
+	DeleteAuthor(c *fiber.Ctx) error
 
-	GetAuthors() ([]model.Author, error)
-	CreateAuthor(author *model.Author) error
-	UpdateAuthor(authorID int, updatedAuthor *model.Author) error
-	DeleteAuthor(authorID int) error
+	CreateBook(c *fiber.Ctx) error
+	ReadBooks(c *fiber.Ctx) error
+	UpdateBook(c *fiber.Ctx) error
+	DeleteBook(c *fiber.Ctx) error
 
-	ReadBooks() ([]model.Book, error)
-	CreateBook(book *model.Book) error
-	UpdateBook(bookID int, updatedBook *model.Book) error
-	DeleteBook(bookID int) error
+	CreateReader(c *fiber.Ctx) error
+	ReadReaders(c *fiber.Ctx) error
+	UpdateReader(c *fiber.Ctx) error
+	DeleteReader(c *fiber.Ctx) error
 
-	ReadReaders() ([]model.Reader, error)
-	CreateReader(reader *model.Reader) error
-	UpdateReader(readerID int, updatedReader *model.Reader) error
-	DeleteReader(readerID int) error
-
-	GetAuthorBooks(authorId int) ([]model.Book, error)
-	GetReaderBooks(readerId int) ([]model.ReaderBook, error)
+	GetAuthorBooks(c *fiber.Ctx) error
+	GetReaderBooks(c *fiber.Ctx) error
 }
 
 type Server struct {
 	App     *fiber.App
-	Service Service
-	Store   Store
 	Logger  hclog.Logger
+	Handler Handler
 }
 
 func selectiveLogging(c *fiber.Ctx) error {
@@ -90,8 +84,8 @@ func Start(conf *config.Config) error {
 		return err
 	}
 	defer db.Close()
-	s.Service = service.NewService(db, logger)
-	s.Store = store.NewStore(db, logger)
+
+	s.Handler = handler.NewHandler(db, logger)
 
 	prometheus := fiberprometheus.New("library-web-api")
 	prometheus.RegisterAt(s.App, "/metrics")
@@ -111,7 +105,7 @@ func Start(conf *config.Config) error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
-	_ = <-c // This blocks the main thread until an interrupt is received
+	_ = <-c
 
 	s.Logger.Info("Gracefully shutting down...")
 	_ = s.App.Shutdown()

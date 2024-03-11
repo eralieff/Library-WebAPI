@@ -1,23 +1,23 @@
 package app
 
 func (s *Server) NewRouter() {
-	s.App.Get("/healthz", s.HealthCheck)
+	s.App.Get("/healthz", s.Handler.HealthCheck)
 
-	s.App.Get("/authors", s.GetAuthors)
-	s.App.Post("/authors", s.CreateAuthor)
-	s.App.Patch("/authors/:id", s.UpdateAuthor)
-	s.App.Delete("/authors/:id", s.DeleteAuthor)
+	s.App.Post("/authors", s.Handler.CreateAuthor)
+	s.App.Get("/authors", s.Handler.ReadAuthors)
+	s.App.Patch("/authors/:id", s.Handler.UpdateAuthor)
+	s.App.Delete("/authors/:id", s.Handler.DeleteAuthor)
 
-	s.App.Get("/books", s.ReadBooks)
-	s.App.Post("/books", s.CreateBook)
-	s.App.Patch("/books/:id", s.UpdateBook)
-	s.App.Delete("/books/:id", s.DeleteBook)
+	s.App.Post("/books", s.Handler.CreateBook)
+	s.App.Get("/books", s.Handler.ReadBooks)
+	s.App.Patch("/books/:id", s.Handler.UpdateBook)
+	s.App.Delete("/books/:id", s.Handler.DeleteBook)
 
-	s.App.Get("/readers", s.ReadReaders)
-	s.App.Post("/readers", s.CreateReader)
-	s.App.Patch("/readers/:id", s.UpdateReader)
-	s.App.Delete("/readers/:id", s.DeleteReader)
+	s.App.Post("/readers", s.Handler.CreateReader)
+	s.App.Get("/readers", s.Handler.ReadReaders)
+	s.App.Patch("/readers/:id", s.Handler.UpdateReader)
+	s.App.Delete("/readers/:id", s.Handler.DeleteReader)
 
-	s.App.Get("/authors/:id/books", s.GetAuthorBooks)
-	s.App.Get("/readers/:id/books", s.GetReaderBooks)
+	s.App.Get("/authors/:id/books", s.Handler.GetAuthorBooks)
+	s.App.Get("/readers/:id/books", s.Handler.GetReaderBooks)
 }
