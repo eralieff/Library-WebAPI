@@ -116,7 +116,7 @@ func (s *Store) ReadBooks() ([]model.Book, error) {
 	var books []model.Book
 	for rows.Next() {
 		var book model.Book
-		if err := rows.Scan(&book.Id, &book.Title, &book.Genre, &book.ISBN); err != nil {
+		if err := rows.Scan(&book.Id, &book.Title, &book.Genre, &book.ISBN, &book.AuthorId); err != nil {
 			s.logger.Error("Error scanning book row", err)
 			return nil, err
 		}
@@ -132,7 +132,7 @@ func (s *Store) ReadBooks() ([]model.Book, error) {
 }
 
 func (s *Store) CreateBook(book *model.Book) error {
-	_, err := s.db.Exec("INSERT INTO Book (title, genre, isbn) VALUES ($1, $2, $3)", book.Title, book.Genre, book.Genre)
+	_, err := s.db.Exec("INSERT INTO Book (title, genre, isbn, author_id) VALUES ($1, $2, $3, $4)", book.Title, book.Genre, book.ISBN, book.AuthorId)
 	if err != nil {
 		s.logger.Error("Error creating book", err)
 		return err
@@ -142,7 +142,7 @@ func (s *Store) CreateBook(book *model.Book) error {
 }
 
 func (s *Store) UpdateBook(bookID int, updatedBook *model.Book) error {
-	result, err := s.db.Exec("UPDATE Book SET title = $1, genre = $2, isbn = $3 WHERE id = $4", updatedBook.Title, updatedBook.Genre, updatedBook.ISBN, bookID)
+	result, err := s.db.Exec("UPDATE Book SET title = $1, genre = $2, isbn = $3, author_id = $4 WHERE id = $5", updatedBook.Title, updatedBook.Genre, updatedBook.ISBN, updatedBook.AuthorId, bookID)
 	if err != nil {
 		s.logger.Error("Error updating book: ", err)
 		return err
@@ -179,4 +179,30 @@ func (s *Store) DeleteBook(bookID int) error {
 	}
 
 	return nil
+}
+
+func (s *Store) GetAuthorBooks(authorId int) ([]model.Book, error) {
+	rows, err := s.db.Query(`SELECT * FROM Book WHERE author_id = $1`, authorId)
+	if err != nil {
+		s.logger.Error("Error getting books", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var books []model.Book
+	for rows.Next() {
+		var book model.Book
+		if err := rows.Scan(&book.Id, &book.Title, &book.Genre, &book.ISBN, &book.AuthorId); err != nil {
+			s.logger.Error("Error scanning book row", err)
+			return nil, err
+		}
+		books = append(books, book)
+	}
+
+	if err := rows.Err(); err != nil {
+		s.logger.Error("Error iterating book rows", err)
+		return nil, err
+	}
+
+	return books, nil
 }
