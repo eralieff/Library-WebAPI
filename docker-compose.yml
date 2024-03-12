@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  library-web-api:
+    image: test-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB=postgres://postgres:qwerty@db:5432/postgres?sslmode=disable
+      - DB_PASSWORD=qwerty
+      - PORT=8080
+    networks:
+      - back
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qwerty
+    ports:
+      - "5432:5432"
+    networks:
+      - back
+networks:
+  #Internal-only network for proper nginx proxying and ssh
+  back:
+    driver: bridge
