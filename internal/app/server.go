@@ -63,7 +63,7 @@ func Start(conf *config.Config) error {
 	s.App.Use(cors.New(cors.Config{
 		Next:             nil,
 		AllowOrigins:     "*",
-		AllowMethods:     "OPTIONS, GET, POST, HEAD, PUT, DELETE, PATCH",
+		AllowMethods:     "GET, POST, DELETE, PATCH",
 		AllowHeaders:     "Origin,X-Requested-With, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 		ExposeHeaders:    "",

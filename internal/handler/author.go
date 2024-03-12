@@ -9,10 +9,6 @@ import (
 func (h *Handler) CreateAuthor(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Create Author")
 
-	if c.Method() != fiber.MethodPost {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	author := new(model.Author)
 	if err := c.BodyParser(&author); err != nil {
 		h.Logger.Error("Error parsing request body: ", err)
@@ -30,10 +26,6 @@ func (h *Handler) CreateAuthor(c *fiber.Ctx) error {
 func (h *Handler) ReadAuthors(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Get Authors")
 
-	if c.Method() != fiber.MethodGet {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	authorsList, err := h.Store.ReadAuthors()
 	if err != nil {
 		h.Logger.Error("Error retrieving authors:", err)
@@ -49,10 +41,6 @@ func (h *Handler) ReadAuthors(c *fiber.Ctx) error {
 
 func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Update Author")
-
-	if c.Method() != fiber.MethodPatch {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	authorID := c.Params("id")
 
@@ -79,10 +67,6 @@ func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 
 func (h *Handler) DeleteAuthor(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Delete Author")
-
-	if c.Method() != fiber.MethodDelete {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	authorID := c.Params("id")
 

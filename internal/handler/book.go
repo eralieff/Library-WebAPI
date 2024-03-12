@@ -9,10 +9,6 @@ import (
 func (h *Handler) CreateBook(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Create Book")
 
-	if c.Method() != fiber.MethodPost {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	book := new(model.Book)
 	if err := c.BodyParser(&book); err != nil {
 		h.Logger.Error("Error parsing request body: ", err)
@@ -30,10 +26,6 @@ func (h *Handler) CreateBook(c *fiber.Ctx) error {
 func (h *Handler) ReadBooks(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Read Books")
 
-	if c.Method() != fiber.MethodGet {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	booksList, err := h.Store.ReadBooks()
 	if err != nil {
 		h.Logger.Error("Error retrieving books:", err)
@@ -49,10 +41,6 @@ func (h *Handler) ReadBooks(c *fiber.Ctx) error {
 
 func (h *Handler) UpdateBook(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Update Book")
-
-	if c.Method() != fiber.MethodPatch {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	bookID := c.Params("id")
 
@@ -79,10 +67,6 @@ func (h *Handler) UpdateBook(c *fiber.Ctx) error {
 
 func (h *Handler) DeleteBook(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Delete Book")
-
-	if c.Method() != fiber.MethodDelete {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	bookID := c.Params("id")
 

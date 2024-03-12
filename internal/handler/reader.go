@@ -9,15 +9,8 @@ import (
 func (h *Handler) ReadReaders(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Read Readers")
 
-	if c.Method() != fiber.MethodGet {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	readersList, err := h.Store.ReadReaders()
 	if err != nil {
-		//if err == ErrNoReadersFound {
-		//	return c.Status(fiber.StatusNotFound).SendString("No readers found")
-		//}
 		h.Logger.Error("Error retrieving readers:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
@@ -32,10 +25,6 @@ func (h *Handler) ReadReaders(c *fiber.Ctx) error {
 func (h *Handler) CreateReader(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Create Reader")
 
-	if c.Method() != fiber.MethodPost {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	reader := new(model.Reader)
 	if err := c.BodyParser(&reader); err != nil {
 		h.Logger.Error("Error parsing request body: ", err)
@@ -43,9 +32,6 @@ func (h *Handler) CreateReader(c *fiber.Ctx) error {
 	}
 
 	if err := h.Store.CreateReader(reader); err != nil {
-		//if err != ErrResourceNotFound {
-		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
-		//}
 		h.Logger.Error("Error creating reader: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
@@ -55,10 +41,6 @@ func (h *Handler) CreateReader(c *fiber.Ctx) error {
 
 func (h *Handler) UpdateReader(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Update Reader")
-
-	if c.Method() != fiber.MethodPatch {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	readerID := c.Params("id")
 
@@ -76,9 +58,6 @@ func (h *Handler) UpdateReader(c *fiber.Ctx) error {
 
 	err = h.Store.UpdateReader(id, reader)
 	if err != nil {
-		//if err != ErrResourceNotFound {
-		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
-		//}
 		h.Logger.Error("Error updating reader: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
@@ -88,10 +67,6 @@ func (h *Handler) UpdateReader(c *fiber.Ctx) error {
 
 func (h *Handler) DeleteReader(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Delete Reader")
-
-	if c.Method() != fiber.MethodDelete {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	readerID := c.Params("id")
 
@@ -103,9 +78,6 @@ func (h *Handler) DeleteReader(c *fiber.Ctx) error {
 
 	err = h.Store.DeleteReader(id)
 	if err != nil {
-		//if err != ErrResourceNotFound {
-		//	return c.Status(fiber.StatusNotFound).SendString("Resource Not Found")
-		//}
 		h.Logger.Error("Error deleting reader: ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}

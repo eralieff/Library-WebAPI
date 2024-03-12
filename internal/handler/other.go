@@ -15,10 +15,6 @@ func (h *Handler) HealthCheck(c *fiber.Ctx) error {
 func (h *Handler) GetAuthorBooks(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Get Author Books")
 
-	if c.Method() != fiber.MethodGet {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
-
 	authorID := c.Params("id")
 
 	id, err := strconv.Atoi(authorID)
@@ -42,10 +38,6 @@ func (h *Handler) GetAuthorBooks(c *fiber.Ctx) error {
 
 func (h *Handler) GetReaderBooks(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Get Reader Books")
-
-	if c.Method() != fiber.MethodGet {
-		return c.Status(fiber.StatusMethodNotAllowed).SendString("Method Not Allowed")
-	}
 
 	readerID := c.Params("id")
 
