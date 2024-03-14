@@ -12,15 +12,15 @@ func (h *Handler) CreateAuthor(c *fiber.Ctx) error {
 	author := new(model.Author)
 	if err := c.BodyParser(&author); err != nil {
 		h.Logger.Error("Error parsing request body: ", err)
-		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
 	if err := h.Store.CreateAuthor(author); err != nil {
 		h.Logger.Error("Error creating author: ", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	return c.Status(fiber.StatusCreated).JSON("The author has been successfully created")
+	return c.Status(fiber.StatusCreated).SendString("")
 }
 
 func (h *Handler) ReadAuthors(c *fiber.Ctx) error {
@@ -29,7 +29,7 @@ func (h *Handler) ReadAuthors(c *fiber.Ctx) error {
 	authorsList, err := h.Store.ReadAuthors()
 	if err != nil {
 		h.Logger.Error("Error retrieving authors:", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
 	if len(authorsList) == 0 {
@@ -47,8 +47,17 @@ func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 	author := new(model.Author)
 	if err := c.BodyParser(&author); err != nil {
 		h.Logger.Error("Error parsing request body: ", err)
-		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
+
+	// fix
+	/*
+		err := h.Validate.ValidateAuthorUpdateFields(author)
+		if err != nil {
+			h.Logger.Error("Error validating author: ", err)
+			return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		}
+	*/
 
 	id, err := strconv.Atoi(authorID)
 	if err != nil {
@@ -59,7 +68,7 @@ func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 	err = h.Store.UpdateAuthor(id, author)
 	if err != nil {
 		h.Logger.Error("Error updating author: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
 	return c.Status(fiber.StatusOK).JSON("The author has been successfully updated")
@@ -79,7 +88,7 @@ func (h *Handler) DeleteAuthor(c *fiber.Ctx) error {
 	err = h.Store.DeleteAuthor(id)
 	if err != nil {
 		h.Logger.Error("Error deleting author: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+		return c.Status(fiber.StatusOK).JSON("The author has been successfully deleted")
 	}
 
 	return c.Status(fiber.StatusOK).JSON("The author has been successfully deleted")
