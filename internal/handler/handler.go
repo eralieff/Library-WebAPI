@@ -33,6 +33,7 @@ type Store interface {
 type IValidate interface {
 	ValidateAuthorUpdateFields(requestBody []byte) error
 	ValidateBookUpdateFields(requestBody []byte) error
+	ValidateReaderUpdateFields(requestBody []byte) error
 }
 
 type Handler struct {

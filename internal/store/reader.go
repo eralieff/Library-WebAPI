@@ -2,12 +2,18 @@ package store
 
 import (
 	"Library_WebAPI/internal/model"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
 func (s *Store) CreateReader(reader *model.Reader) error {
+	if reader.FullName == "" || len(reader.ListOfBooks) == 0 {
+		s.logger.Error("Error creating reader: ", "one or more empty fields")
+		return errors.New("one or more empty fields")
+	}
+
 	bookStr := fmt.Sprintf("{%s}", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(reader.ListOfBooks)), ","), "[]"))
 
 	_, err := s.db.Exec("INSERT INTO Reader (full_name, list_of_books) VALUES ($1, $2)", reader.FullName, bookStr)
@@ -59,9 +65,33 @@ func (s *Store) ReadReaders() ([]model.Reader, error) {
 }
 
 func (s *Store) UpdateReader(readerID int, updatedReader *model.Reader) error {
-	bookStr := fmt.Sprintf("{%s}", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(updatedReader.ListOfBooks)), ","), "[]"))
+	query := "UPDATE Reader SET"
+	var args []interface{}
+	var paramCounter = 1
 
-	result, err := s.db.Exec("UPDATE Reader SET full_name = $1, list_of_books = $2 WHERE id = $3", updatedReader.FullName, bookStr, readerID)
+	if updatedReader.FullName != "" {
+		query += fmt.Sprintf(" full_name = $%d,", paramCounter)
+		args = append(args, updatedReader.FullName)
+		paramCounter++
+	}
+
+	if len(updatedReader.ListOfBooks) != 0 {
+		query += fmt.Sprintf(" list_of_books = $%d,", paramCounter)
+		bookStr := fmt.Sprintf("{%s}", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(updatedReader.ListOfBooks)), ","), "[]"))
+		args = append(args, bookStr)
+		paramCounter++
+	}
+
+	if len(args) == 0 {
+		s.logger.Error("Error updating reader: ", "empty request")
+		return errors.New("empty request")
+	}
+
+	queryString := strings.TrimSuffix(query, ",")
+	queryString += fmt.Sprintf(" WHERE id = $%d", paramCounter)
+	args = append(args, readerID)
+
+	result, err := s.db.Exec(queryString, args...)
 	if err != nil {
 		s.logger.Error("Error updating reader: ", err)
 		return err
@@ -72,6 +102,7 @@ func (s *Store) UpdateReader(readerID int, updatedReader *model.Reader) error {
 		s.logger.Error("Error getting rows affected: ", err)
 		return err
 	}
+
 	if rowsAffected == 0 {
 		s.logger.Error("Reader with ID not found: ", readerID)
 		return fmt.Errorf("Reader with ID %d not found", readerID)
