@@ -2,6 +2,7 @@ package handler
 
 import (
 	"Library_WebAPI/internal/model"
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -42,30 +43,27 @@ func (h *Handler) ReadAuthors(c *fiber.Ctx) error {
 func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 	h.Logger.With("operation", "Update Author")
 
-	authorID := c.Params("id")
+	requestBody := c.Body()
 
-	author := new(model.Author)
-	if err := c.BodyParser(&author); err != nil {
-		h.Logger.Error("Error parsing request body: ", err)
+	if err := h.Validate.ValidateAuthorUpdateFields(requestBody); err != nil {
+		h.Logger.Error("Error validating author: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	// fix
-	/*
-		err := h.Validate.ValidateAuthorUpdateFields(author)
-		if err != nil {
-			h.Logger.Error("Error validating author: ", err)
-			return c.Status(fiber.StatusBadRequest).JSON(err.Error())
-		}
-	*/
-
+	authorID := c.Params("id")
 	id, err := strconv.Atoi(authorID)
 	if err != nil {
 		h.Logger.Error("Error parsing from string to int author ID: ", err)
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	err = h.Store.UpdateAuthor(id, author)
+	var updatedAuthor model.Author
+	if err := json.Unmarshal(requestBody, &updatedAuthor); err != nil {
+		h.Logger.Error("Error unmarshalling updated author: ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+	}
+
+	err = h.Store.UpdateAuthor(id, &updatedAuthor)
 	if err != nil {
 		h.Logger.Error("Error updating author: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())

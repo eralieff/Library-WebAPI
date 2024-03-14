@@ -31,7 +31,7 @@ type Store interface {
 }
 
 type IValidate interface {
-	// ValidateAuthorUpdateFields(updatedAuthor *model.Author) error
+	ValidateAuthorUpdateFields(requestBody []byte) error
 }
 
 type Handler struct {

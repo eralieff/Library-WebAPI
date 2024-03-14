@@ -1,6 +1,8 @@
 package validation
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/hashicorp/go-hclog"
 )
 
@@ -14,9 +16,13 @@ func NewValidation(logger hclog.Logger) *Validate {
 	}
 }
 
-// fix
-/*
-func (v *Validate) ValidateAuthorUpdateFields(updatedAuthor *model.Author) error {
+func (v *Validate) ValidateAuthorUpdateFields(requestBody []byte) error {
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(requestBody, &jsonData); err != nil {
+		v.logger.Error("Error parsing request body: ", err.Error())
+		return errors.New("Error parsing request body: " + err.Error())
+	}
+
 	validFields := map[string]bool{
 		"id":         true,
 		"full_name":  true,
@@ -24,17 +30,12 @@ func (v *Validate) ValidateAuthorUpdateFields(updatedAuthor *model.Author) error
 		"speciality": true,
 	}
 
-	val := reflect.ValueOf(updatedAuthor).Elem()
-
-	for i := 0; i < val.NumField(); i++ {
-		fieldName := val.Type().Field(i).Tag.Get("json")
-		fieldName = strings.ToLower(fieldName)
+	for fieldName := range jsonData {
 		if !validFields[fieldName] {
 			v.logger.Error("Unknown field in update request: ", fieldName)
-			return fmt.Errorf("Unknown field in update request: %s", fieldName)
+			return errors.New("Unknown field in update request: " + fieldName)
 		}
 	}
 
 	return nil
 }
-*/
