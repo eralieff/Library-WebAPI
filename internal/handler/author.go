@@ -45,7 +45,7 @@ func (h *Handler) UpdateAuthor(c *fiber.Ctx) error {
 
 	requestBody := c.Body()
 
-	if err := h.Validate.ValidateAuthorUpdateFields(requestBody); err != nil {
+	if err := h.Validate.ValidateUpdateFields(requestBody, validFieldsAuthor); err != nil {
 		h.Logger.Error("Error validating author: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}

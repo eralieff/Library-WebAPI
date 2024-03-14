@@ -45,7 +45,7 @@ func (h *Handler) UpdateBook(c *fiber.Ctx) error {
 
 	requestBody := c.Body()
 
-	if err := h.Validate.ValidateBookUpdateFields(requestBody); err != nil {
+	if err := h.Validate.ValidateUpdateFields(requestBody, validFieldsBook); err != nil {
 		h.Logger.Error("Error validating book: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}

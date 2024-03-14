@@ -45,7 +45,7 @@ func (h *Handler) UpdateReader(c *fiber.Ctx) error {
 
 	requestBody := c.Body()
 
-	if err := h.Validate.ValidateReaderUpdateFields(requestBody); err != nil {
+	if err := h.Validate.ValidateUpdateFields(requestBody, validFieldsReader); err != nil {
 		h.Logger.Error("Error validating reader: ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}

@@ -16,66 +16,11 @@ func NewValidation(logger hclog.Logger) *Validate {
 	}
 }
 
-func (v *Validate) ValidateAuthorUpdateFields(requestBody []byte) error {
+func (v *Validate) ValidateUpdateFields(requestBody []byte, validFields map[string]bool) error {
 	var jsonData map[string]interface{}
 	if err := json.Unmarshal(requestBody, &jsonData); err != nil {
 		v.logger.Error("Error parsing request body: ", err.Error())
 		return errors.New("Error parsing request body: " + err.Error())
-	}
-
-	validFields := map[string]bool{
-		"id":         true,
-		"full_name":  true,
-		"nickname":   true,
-		"speciality": true,
-	}
-
-	for fieldName := range jsonData {
-		if !validFields[fieldName] {
-			v.logger.Error("Unknown field in update request: ", fieldName)
-			return errors.New("Unknown field in update request: " + fieldName)
-		}
-	}
-
-	return nil
-}
-
-func (v *Validate) ValidateBookUpdateFields(requestBody []byte) error {
-	var jsonData map[string]interface{}
-	if err := json.Unmarshal(requestBody, &jsonData); err != nil {
-		v.logger.Error("Error parsing request body: ", err.Error())
-		return errors.New("Error parsing request body: " + err.Error())
-	}
-
-	validFields := map[string]bool{
-		"id":        true,
-		"title":     true,
-		"genre":     true,
-		"isbn":      true,
-		"author_id": true,
-	}
-
-	for fieldName := range jsonData {
-		if !validFields[fieldName] {
-			v.logger.Error("Unknown field in update request: ", fieldName)
-			return errors.New("Unknown field in update request: " + fieldName)
-		}
-	}
-
-	return nil
-}
-
-func (v *Validate) ValidateReaderUpdateFields(requestBody []byte) error {
-	var jsonData map[string]interface{}
-	if err := json.Unmarshal(requestBody, &jsonData); err != nil {
-		v.logger.Error("Error parsing request body: ", err.Error())
-		return errors.New("Error parsing request body: " + err.Error())
-	}
-
-	validFields := map[string]bool{
-		"id":            true,
-		"full_name":     true,
-		"list_of_books": true,
 	}
 
 	for fieldName := range jsonData {

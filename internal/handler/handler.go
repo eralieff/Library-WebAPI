@@ -31,9 +31,7 @@ type Store interface {
 }
 
 type IValidate interface {
-	ValidateAuthorUpdateFields(requestBody []byte) error
-	ValidateBookUpdateFields(requestBody []byte) error
-	ValidateReaderUpdateFields(requestBody []byte) error
+	ValidateUpdateFields(requestBody []byte, validFields map[string]bool) error
 }
 
 type Handler struct {
@@ -49,3 +47,26 @@ func NewHandler(db *sqlx.DB, logger hclog.Logger) *Handler {
 		Validate: validation.NewValidation(logger),
 	}
 }
+
+var (
+	validFieldsAuthor = map[string]bool{
+		"id":         true,
+		"full_name":  true,
+		"nickname":   true,
+		"speciality": true,
+	}
+
+	validFieldsBook = map[string]bool{
+		"id":        true,
+		"title":     true,
+		"genre":     true,
+		"isbn":      true,
+		"author_id": true,
+	}
+
+	validFieldsReader = map[string]bool{
+		"id":            true,
+		"full_name":     true,
+		"list_of_books": true,
+	}
+)
