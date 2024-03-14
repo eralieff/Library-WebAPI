@@ -3,6 +3,7 @@ package handler
 import (
 	"Library_WebAPI/internal/model"
 	"Library_WebAPI/internal/store"
+	"Library_WebAPI/pkg/validation"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jmoiron/sqlx"
 )
@@ -29,14 +30,20 @@ type Store interface {
 	GetReaderBooks(readerId int) ([]model.ReaderBook, error)
 }
 
+type IValidate interface {
+	// ValidateAuthorUpdateFields(updatedAuthor *model.Author) error
+}
+
 type Handler struct {
-	Store  Store
-	Logger hclog.Logger
+	Store    Store
+	Logger   hclog.Logger
+	Validate IValidate
 }
 
 func NewHandler(db *sqlx.DB, logger hclog.Logger) *Handler {
 	return &Handler{
-		Store:  store.NewStore(db, logger),
-		Logger: logger,
+		Store:    store.NewStore(db, logger),
+		Logger:   logger,
+		Validate: validation.NewValidation(logger),
 	}
 }
